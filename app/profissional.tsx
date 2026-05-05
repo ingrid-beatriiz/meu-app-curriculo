@@ -1,33 +1,20 @@
 import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
 import { useEffect, useState } from 'react';
+import { sql } from '../lib/db';
 
-interface Profissional {
-  id: number;
-  cargo: string;
-  empresa: string;
-  descricao: string;
-}
+interface Profissional { id: number; cargo: string; empresa: string; descricao: string; }
 
 export default function ProfissionalScreen() {
   const [profissional, setProfissional] = useState<Profissional[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/dados')
-      .then(response => response.json())
-      .then(data => {
-        setProfissional(data.profissional);
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error('Erro ao buscar dados profissionais:', error);
-        setLoading(false);
-      });
+    sql`SELECT * FROM profissional`
+      .then((data: any) => { setProfissional(data); setLoading(false); })
+      .catch(error => { console.error('Erro:', error); setLoading(false); });
   }, []);
 
-  if (loading) {
-    return <View style={styles.container}><ActivityIndicator size="large" color="#0000ff" /></View>;
-  }
+  if (loading) return <View style={styles.container}><ActivityIndicator size="large" color="#0000ff" /></View>;
 
   return (
     <View style={styles.container}>

@@ -1,33 +1,26 @@
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { useEffect, useState } from 'react';
+import { sql } from '../lib/db';
 
-interface Perfil {
-  id: number;
-  nome: string;
-  titulo: string;
-  resumo: string;
-}
+interface Perfil { id: number; nome: string; titulo: string; resumo: string; }
 
 export default function Sobre() {
   const [perfil, setPerfil] = useState<Perfil | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/dados')
-      .then(response => response.json())
-      .then(data => {
-        setPerfil(data.perfil);
+    sql`SELECT * FROM perfil LIMIT 1`
+      .then((data: any) => {
+        setPerfil(data[0]);
         setLoading(false);
       })
       .catch(error => {
-        console.error('Erro ao buscar perfil:', error);
+        console.error('Erro:', error);
         setLoading(false);
       });
   }, []);
 
-  if (loading) {
-    return <View style={styles.container}><ActivityIndicator size="large" color="#0000ff" /></View>;
-  }
+  if (loading) return <View style={styles.container}><ActivityIndicator size="large" color="#0000ff" /></View>;
 
   return (
     <View style={styles.container}>
@@ -36,14 +29,11 @@ export default function Sobre() {
           <Text style={styles.nome}>{perfil.nome}</Text>
           <Text style={styles.titulo}>{perfil.titulo}</Text>
           <Text style={styles.resumo}>{perfil.resumo}</Text>
-          
           <View style={styles.divisor} />
-          
           <Text style={styles.techTitle}>Tecnologias Utilizadas no App:</Text>
-          <Text style={styles.resumo}>• React Native & Expo</Text>
-          <Text style={styles.resumo}>• Expo Router (Navegação)</Text>
-          <Text style={styles.resumo}>• NeonDB / PostgreSQL (Banco de Dados)</Text>
-          <Text style={styles.resumo}>• API Routes do Expo</Text>
+          <Text style={styles.resumo}>• React Native & Expo Router</Text>
+          <Text style={styles.resumo}>• NeonDB Serverless (HTTP Fetch)</Text>
+          <Text style={styles.resumo}>• EAS Update (Over-the-air)</Text>
         </View>
       )}
     </View>

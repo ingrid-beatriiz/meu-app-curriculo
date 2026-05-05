@@ -1,33 +1,20 @@
 import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
 import { useEffect, useState } from 'react';
+import { sql } from '../lib/db';
 
-interface Academico {
-  id: number;
-  curso: string;
-  instituicao: string;
-  periodo: string;
-}
+interface Academico { id: number; curso: string; instituicao: string; periodo: string; }
 
 export default function AcademicoScreen() {
   const [academico, setAcademico] = useState<Academico[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/dados')
-      .then(response => response.json())
-      .then(data => {
-        setAcademico(data.academico);
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error('Erro ao buscar dados acadêmicos:', error);
-        setLoading(false);
-      });
+    sql`SELECT * FROM academico`
+      .then((data: any) => { setAcademico(data); setLoading(false); })
+      .catch(error => { console.error('Erro:', error); setLoading(false); });
   }, []);
 
-  if (loading) {
-    return <View style={styles.container}><ActivityIndicator size="large" color="#0000ff" /></View>;
-  }
+  if (loading) return <View style={styles.container}><ActivityIndicator size="large" color="#0000ff" /></View>;
 
   return (
     <View style={styles.container}>

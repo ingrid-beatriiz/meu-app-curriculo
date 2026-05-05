@@ -1,34 +1,26 @@
 import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
 import { useEffect, useState } from 'react';
+import { sql } from '../lib/db';
 
-interface Projeto {
-  id: number;
-  nome: string;
-  tecnologias: string;
-  descricao: string;
-}
+interface Projeto { id: number; nome: string; tecnologias: string; descricao: string; }
 
 export default function Projetos() {
-
   const [projetos, setProjetos] = useState<Projeto[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/dados')
-      .then(response => response.json())
-      .then(data => {
-        setProjetos(data.projetos);
+    sql`SELECT * FROM projetos`
+      .then((data: any) => {
+        setProjetos(data);
         setLoading(false);
       })
       .catch(error => {
-        console.error('Erro ao buscar projetos:', error);
+        console.error('Erro:', error);
         setLoading(false);
       });
   }, []);
 
-  if (loading) {
-    return <View style={styles.container}><ActivityIndicator size="large" color="#0000ff" /></View>;
-  }
+  if (loading) return <View style={styles.container}><ActivityIndicator size="large" color="#0000ff" /></View>;
 
   return (
     <View style={styles.container}>
